@@ -1,0 +1,43 @@
+services:
+  broker:
+    # We use mosquitto image
+    image: eclipse-mosquitto:latest
+    hostname: broker
+    container_name: broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - default
+
+  db:
+    image: keinos/sqlite3:latest
+    container_name: database
+    volumes:
+      - ./database:/database
+
+  publisher1:
+    hostname: publisher1
+    container_name: publisher1
+    build: ./publisher1
+    volumes:
+      - ./publisher1:/usr/src/publisher1
+    depends_on:
+      - broker
+    networks:
+      - default
+
+  subscriber:
+    hostname: subscriber
+    container_name: subscriber
+    build: ./subscriber
+    volumes:
+      - ./subscriber:/usr/src/subscriber
+    depends_on:
+      - broker
+    networks:
+      - default
+
+networks:
+  default:
